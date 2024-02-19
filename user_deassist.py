@@ -9,8 +9,6 @@ class UserAssist:
 
     def enable_toggle(self, toggle: bool) -> None:
         if toggle:
-
-
             print(f"[+] UserAssist Logging Enabled")
         else:
             print(f"[+] UserAssist Logging Disabled")
