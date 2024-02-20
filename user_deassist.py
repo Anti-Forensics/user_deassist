@@ -8,7 +8,10 @@ class UserAssist:
         self.key_path = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
 
     def toggle(self, enabled: bool) -> None:
-        key = winreg.OpenKey(self.hive, self.key_path, 0, winreg.KEY_SET_VALUE)
+        try:
+            key = winreg.OpenKey(self.hive, self.key_path, 0, winreg.KEY_SET_VALUE)
+        except Exception as e:
+            print(e)
 
         try:
             if enabled:
@@ -25,7 +28,11 @@ class UserAssist:
         winreg.CloseKey(key)
 
     def enum_value(self):
-        key = winreg.OpenKey(self.hive, self.key_path)
+        try:
+            key = winreg.OpenKey(self.hive, self.key_path)
+        except Exception as e:
+            print(e)
+
         total_values = winreg.QueryInfoKey(key)[1]
 
         try:
@@ -74,7 +81,7 @@ def main():
 
     if args.enum:
         print(f"[!] Warning: Running enum will create a registry access event.")
-        response = input("Would you like to continue? (y/n)")
+        response = input("Would you like to continue? (y/n) ")
         if response.lower() == "y":
             ua.enum_value()
 
