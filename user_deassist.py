@@ -4,20 +4,28 @@ import winreg
 class UserAssist:
     def __init__(self):
         self.hive = winreg.HKEY_CURRENT_USER
-        self.track_progs = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-        self.track_enabled = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+        self.key_path = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
 
-    def enable_toggle(self, toggle: bool) -> None:
-        if toggle:
+    def toggle(self, enabled: bool) -> None:
+        if enabled:
+            key = winreg.OpenKey(self.hive, self.key_path)
+            winreg.SetValueEx(key, "Start_TrackProgs", 0, winreg.REG_DWORD, 1)
+            winreg.SetValueEx(key, "Start_TrackEnabled", 0, winreg.REG_DWORD, 1)
+            winreg.CloseKey(key)
             print(f"[+] UserAssist Logging Enabled")
         else:
+            key = winreg.OpenKey(self.hive, self.key_path)
+            winreg.SetValueEx(key, "Start_TrackProgs", 0, winreg.REG_DWORD, 0)
+            winreg.SetValueEx(key, "Start_TrackEnabled", 0, winreg.REG_DWORD, 0)
+            winreg.CloseKey(key)
             print(f"[+] UserAssist Logging Disabled")
 
     def enum_value(self):
+        key = winreg.OpenKey(self.hive, self.key_path)
+        total_values = winreg.QueryInfoKey(key)[1]
+
         try:
-            key = winreg.OpenKey(self.hive, self.track_progs)
-            total_values = winreg.QueryInfoKey(key)[1]
-            for i in range(0, winreg.QueryInfoKey(key)[1]):
+            for i in range(0, total_values):
                 found = False
                 value_name = winreg.EnumValue(key, i)[0]
                 if value_name == "Start_TrackProgs":
@@ -29,12 +37,11 @@ class UserAssist:
                         print(f"[+] Start_TrackProgs is disabled.")
                 elif found is False and i == total_values - 1:
                     print(f"[!] Start_TrackTrackProgs value not found.")
+
         except Exception as e:
             print(e)
 
         try:
-            key = winreg.OpenKey(self.hive, self.track_enabled)
-            total_values = winreg.QueryInfoKey(key)[1]
             for i in range(0, total_values):
                 found = False
                 value_name = winreg.EnumValue(key, i)[0]
@@ -47,6 +54,8 @@ class UserAssist:
                         print(f"[+] Start_TrackEnabled is disabled.")
                 elif found is False and i == total_values - 1:
                     print(f"[!] Start_TrackTrackEnabled value not found.")
+            winreg.CloseKey(key)
+
         except Exception as e:
             print(e)
 
@@ -54,6 +63,7 @@ class UserAssist:
 def main():
     ua = UserAssist()
     ua.enum_value()
+    ua.toggle(False)
 
 
 if __name__ == '__main__':
