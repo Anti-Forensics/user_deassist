@@ -3,6 +3,7 @@ This program will allow you to enable or disable UserAssist tracking on Windows 
 The target OS will need to be rebooted. I haven't tested other methods.
 
 Usage:  
+python .\user_deassist.py --delete  
 python .\user_deassist.py --enable  
 python .\user_deassist.py --disable
 

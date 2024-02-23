@@ -6,6 +6,7 @@ class UserAssist:
     def __init__(self):
         self.hive = winreg.HKEY_CURRENT_USER
         self.key_path = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+        self.user_assist_path = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist"
 
     def toggle(self, enabled: bool) -> None:
         try:
@@ -26,6 +27,20 @@ class UserAssist:
             print(e)
 
         winreg.CloseKey(key)
+
+    def delete_key(self):
+        key = winreg.OpenKey(self.hive, self.user_assist_path, 0, winreg.KEY_ALL_ACCESS)
+        infokey = winreg.QueryInfoKey(key)
+
+        for i in range(infokey[0]):
+            child = winreg.EnumKey(key, i)
+
+            try:
+                key2 = winreg.OpenKey(self.hive, self.user_assist_path + f"\\{child}\\")
+                child2 = "Count"
+                winreg.DeleteKey(key2, child2)
+            except:
+                pass
 
     def enum_value(self):
         try:
@@ -68,6 +83,7 @@ def main():
     parser.add_argument('--disable', required=False, dest="disable", action="store_true")
     parser.add_argument('--enable', required=False, dest="enable", action="store_true")
     parser.add_argument('--enum', required=False, dest="enum", default=False, action="store_true")
+    parser.add_argument('--delete', required=False, dest="delete", default=False, action="store_true")
 
     args = parser.parse_args()
 
@@ -78,6 +94,9 @@ def main():
 
     if args.enable:
         ua.toggle(True)
+
+    if args.delete:
+        ua.delete_key()
 
     if args.enum:
         print(f"[!] Warning: Running enum will create a registry access event.")
